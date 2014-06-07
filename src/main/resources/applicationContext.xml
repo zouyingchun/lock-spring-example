@@ -1,0 +1,37 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:lock="http://www.lock.org/schema/lock"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+        http://www.springframework.org/schema/aop 
+        http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+        http://www.lock.org/schema/lock http://www.lock.org/schema/lock/lock-spring.xsd">
+
+	<context:property-placeholder location="classpath:application.properties" />
+<!-- 	<tx:annotation-driven /> -->
+	<context:component-scan base-package="org.lock.spring.example"></context:component-scan>
+	<lock:annotation-driven />
+
+	<bean id="curatorConnectionFactory"
+		class="org.lock.spring.data.zookeeper.connection.CuratorConnectionFactory">
+		<property name="host" value="127.0.0.1"></property>
+		<property name="port" value="2181"></property>
+	</bean>
+
+	<bean id="genericObjectPool" class="org.apache.commons.pool.impl.GenericObjectPool">
+		<constructor-arg index="0" ref="curatorConnectionFactory">
+		</constructor-arg>
+		<constructor-arg index="1"  value="10">
+		</constructor-arg>
+	</bean>
+
+	<bean id="lockManager" class="org.lock.spring.data.zookeeper.lock.ZookeeperLockManager">
+		<property name="pool" ref="genericObjectPool"></property>
+	</bean>
+
+</beans>
